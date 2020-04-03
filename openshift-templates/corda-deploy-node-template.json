@@ -38,6 +38,16 @@
       "description": "Corda Node Network Parameters Secret Name",
       "name": "SECRET_NODE_NETWORK_PARAMETERS",
       "value": "network-parameters"
+    },
+    {
+      "description": "Corda Node Additional nodes Persistent Storage claim name",
+      "name": "PERSISTENT_STORAGE_CLAIM_NAME",
+      "value": "corda-node1-infos"
+    },
+    {
+      "description": "Corda Node Perstent Storage Claim name",
+      "name": "NODE_LOGS_STORAGE_CLAIM_NAME",
+      "value": "corda-node1-logs"
     }
   ],
   "objects": [
@@ -153,15 +163,19 @@
               },
               {
                 "name": "node-additional-node-infos",
-                "emptyDir": {}
+                "persistentVolumeClaim":{
+                  "claimName": "${PERSISTENT_STORAGE_CLAIM_NAME}"
+                }
               },
               {
                 "emptyDir": {},
                 "name": "node-cordapps"
               },
               {
-                "emptyDir": {},
-                "name": "node-logs"
+                "name": "node-logs",
+                "persistentVolumeClaim":{
+                  "claimName": "${NODE_LOGS_STORAGE_CLAIM_NAME}"
+                }
               }
             ]
           }

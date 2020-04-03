@@ -14,9 +14,10 @@ COPY ./docker/run-corda.sh /run-corda.sh
 RUN  cd /opt/corda/src && \
     chmod +x gradlew && \
     ./gradlew  --stacktrace  --info --scan jar && \
-#    cp /opt/corda/src/workflows/build/libs/* /opt/corda/build && \
-#    cp /opt/corda/src/contracts/build/libs/* /opt/corda/build && \
-    cp /opt/corda/src/build/libs/* /opt/corda/build && \
+    cp /opt/corda/src/workflows/build/libs/* /opt/corda/build && \
+    cp /opt/corda/src/contracts/build/libs/* /opt/corda/build && \
+# if you are building fat jar use below line instead
+#    cp /opt/corda/src/build/libs/* /opt/corda/build && \
     chmod +x /run-corda.sh && \
     chown -R corda:corda /opt/corda && \
     chmod -R u+x /opt/corda && \
