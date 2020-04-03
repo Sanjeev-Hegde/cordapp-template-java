@@ -9,7 +9,7 @@ RUN mkdir -p /opt/corda/src && \
  #  ./gradlew --stacktrace  --info --scan -Dhttp.proxyHost=webproxy.prd.lab-nxtit.priv -Dhttp.proxyPort=3128 -Dhttps.proxyHost=webproxy.prd.lab-nxtit.priv -Dhttps.proxyPort=3128  deployNodeUAT && \
 
 COPY . /opt/corda/src
-COPY ./run-corda.sh /run-corda.sh
+COPY ./docker/run-corda.sh /run-corda.sh
 
 RUN  cd /opt/corda/src && \
     chmod +x gradlew && \
