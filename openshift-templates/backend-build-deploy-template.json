@@ -16,7 +16,7 @@
     {
       "description": "The URL of the repository with your backend application source code",
       "name": "SOURCE_REPOSITORY_URL_BACKEND",
-      "value": "https://github.com/Sanjeev-Hegde/msme-corda.git"
+      "value": "https://github.com/Sanjeev-Hegde/cordapp-template-java.git"
     },
     {
       "description": "Fill the project name",

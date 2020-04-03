@@ -17,7 +17,7 @@
     {
       "description": "The URL of the repository with your application source code ",
       "name": "SOURCE_REPOSITORY_URL",
-      "value": "https://github.com/Sanjeev-Hegde/msme-corda.git"
+      "value": "https://github.com/Sanjeev-Hegde/cordapp-template-java.git"
     },
     {
       "description": "Git branch to fetch",
