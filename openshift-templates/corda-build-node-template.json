@@ -1,0 +1,78 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "corda-node-template"
+  },
+  "labels": {
+    "application": "corda-node",
+    "createdBy": "SanjeevHegde"
+  },
+  "parameters": [
+    {
+      "description": "Fill the project name",
+      "name": "APPLICATION_NAME",
+      "value": "corda-project"
+    },
+    {
+      "description": "The URL of the repository with your application source code ",
+      "name": "SOURCE_REPOSITORY_URL",
+      "value": "https://github.com/Sanjeev-Hegde/msme-corda.git"
+    },
+    {
+      "description": "Git branch to fetch",
+      "name": "SOURCE_REPOSITORY_CONTEXT",
+      "value": "deployment"
+    }
+  ],
+  "objects": [
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "corda-node",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${SOURCE_REPOSITORY_URL}",
+            "ref": "${SOURCE_REPOSITORY_CONTEXT}"
+          },
+          "sourceSecret": {
+            "name": "secret-pull"
+          }
+        },
+        "strategy": {
+          "type": "Docker",
+          "dockerStrategy": {
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "corda-node:latest"
+          }
+        }
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "corda-node"
+      },
+      "spec": {
+        "dockerImageRepository": "",
+        "tags": [
+          {
+            "name": "latest"
+          }
+        ]
+      }
+    }
+  ]
+}

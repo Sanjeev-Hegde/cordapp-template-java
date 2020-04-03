@@ -1,0 +1,176 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "ipfs-deploy-template"
+  },
+  "labels": {
+    "application": "ipfs-node-deploy",
+    "createdBy": "SanjeevHegde"
+  },
+  "parameters": [
+    {
+      "description": "Fill the project name",
+      "name": "APPLICATION_NAME",
+      "value": "corda-project"
+    },
+    {
+      "description": "IPFS Node Name",
+      "name": "IPFS_NODE_NAME",
+      "value": "ipfs-sg"
+    },
+    {
+      "description": "IPFS Swarm Key File Secret Name",
+      "name": "IPFS_SWARM_KEY_SECRET",
+      "value": "swarm-key"
+    },
+    {
+      "description": "IPFS Storage Claim name",
+      "name": "IPFS_STORAGE_CLAIM_NAME",
+      "value": "ipfs-storage-sg"
+    }
+  ],
+  "objects": [
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${IPFS_NODE_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate"
+        },
+        "replicas": 1,
+        "selector": {
+          "name": "${IPFS_NODE_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${IPFS_NODE_NAME}",
+            "labels": {
+              "name": "${IPFS_NODE_NAME}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "${IPFS_NODE_NAME}",
+                "image": "ipfs/go-ipfs:latest",
+                "imagePullPolicy": "IfNotPresent",
+                "env": [
+                  {
+                    "name": "IPFS_SWARM_KEY_FILE",
+                    "value": "/data/ipfs/swarm.key"
+                  },
+                  {
+                    "name": "LIBP2P_FORCE_PNET",
+                    "value": "1"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "2Gi"
+                  },
+                  "requests": {
+                    "memory": "2Gi"
+                  }
+                },
+                "ports": [
+                  {
+                    "containerPort":4001,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 5001,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "ipfs-staging",
+                    "mountPath": "/export"
+                  },
+                  {
+                    "name": "ipfs-data",
+                    "mountPath": "/data/ipfs"
+                  },
+                  {
+                    "name": "swarm-key-file",
+                    "mountPath": "/data/ipfs/swarm.key",
+                    "subPath": "swarm.key"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "ipfs-staging",
+                "emptyDir": {}
+              },
+              {
+                "persistentVolumeClaim":{
+                  "claimName": "${IPFS_STORAGE_CLAIM_NAME}"
+                },
+                "name": "ipfs-data"
+              },
+              {
+                "name": "swarm-key-file",
+                "secret": {
+                  "secretName": "${IPFS_SWARM_KEY_SECRET}"
+                }
+              }
+            ]
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${IPFS_NODE_NAME}",
+        "annotations": {
+          "description": "IPFS service"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "rpc",
+            "protocol": "TCP",
+            "port": 4001,
+            "targetPort": 4001
+          },
+          {
+            "name": "p2p",
+            "protocol": "TCP",
+            "port": 5001,
+            "targetPort": 5001
+          },
+          {
+            "name": "admin",
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "name": "${IPFS_NODE_NAME}"
+        }
+      }
+    }
+  ]
+}

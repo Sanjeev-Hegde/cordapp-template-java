@@ -1,0 +1,225 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "corda-node-deploy-template"
+  },
+  "labels": {
+    "application": "corda-node-deploy",
+    "createdBy": "SanjeevHegde"
+  },
+  "parameters": [
+    {
+      "description": "Number of replicas to run",
+      "name": "REPLICA_COUNT",
+      "value": "1"
+    },
+    {
+      "description": "Fill the project name",
+      "name": "APPLICATION_NAME",
+      "value": "corda-project"
+    },
+    {
+      "description": "Corda Node Name",
+      "name": "CORDA_NODE_NAME",
+      "value": "corda-node-1"
+    },
+    {
+      "description": "Corda Node Config Secret name",
+      "name": "SECRET_NODE_CONFIG",
+      "value": "config-node1"
+    },
+    {
+      "description": "Corda Node Certificates Secret Name",
+      "name": "SECRET_NODE_CERTIFICATES",
+      "value": "node-certificates"
+    },
+    {
+      "description": "Corda Node Network Parameters Secret Name",
+      "name": "SECRET_NODE_NETWORK_PARAMETERS",
+      "value": "network-parameters"
+    }
+  ],
+  "objects": [
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${CORDA_NODE_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate"
+        },
+        "replicas": 1,
+        "selector": {
+          "name": "${CORDA_NODE_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${CORDA_NODE_NAME}",
+            "labels": {
+              "name": "${CORDA_NODE_NAME}"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "${CORDA_NODE_NAME}",
+                "image": "corda-node",
+                "imagePullPolicy": "IfNotPresent",
+                "env": [
+                  {
+                    "name": "JVM_ARGS",
+                    "value": "-Xmx2048m"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "memory": "4Gi"
+                  },
+                  "requests": {
+                    "memory": "4Gi"
+                  }
+                },
+                "ports": [
+                  {
+                    "containerPort": 10002,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 10003,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "containerPort": 10043,
+                    "protocol": "TCP"
+                  }
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "node-config",
+                    "mountPath": "/etc/corda",
+                    "readOnly": true
+                  },
+                  {
+                    "name": "node-certificates",
+                    "mountPath": "/opt/corda/certificates",
+                    "readOnly": true
+                  },
+                  {
+                    "name": "node-network-parameters",
+                    "mountPath": "/opt/corda/network-parameters",
+                    "subPath": "network-parameters",
+                    "readOnly": true
+                  },
+                  {
+                    "name": "node-additional-node-infos",
+                    "mountPath": "/opt/corda/additional-node-infos",
+                    "readOnly": false
+                  },
+                  {
+                    "name": "node-cordapps",
+                    "mountPath": "/opt/corda/cordapps"
+                  },
+                  {
+                    "name": "node-logs",
+                    "mountPath": "/opt/corda/logs"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "node-config",
+                "secret": {
+                  "secretName": "${SECRET_NODE_CONFIG}"
+                }
+              },
+              {
+                "name": "node-certificates",
+                "secret": {
+                  "secretName": "${SECRET_NODE_CERTIFICATES}"
+                }
+              },
+              {
+                "name": "node-network-parameters",
+                "secret": {
+                  "secretName": "${SECRET_NODE_NETWORK_PARAMETERS}"
+                }
+              },
+              {
+                "name": "node-additional-node-infos",
+                "emptyDir": {}
+              },
+              {
+                "emptyDir": {},
+                "name": "node-cordapps"
+              },
+              {
+                "emptyDir": {},
+                "name": "node-logs"
+              }
+            ]
+          }
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${CORDA_NODE_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "corda-node:latest"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${CORDA_NODE_NAME}",
+        "annotations": {
+          "description": "Corda Node Service"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "rpc",
+            "protocol": "TCP",
+            "port": 10003,
+            "targetPort": 10003
+          },
+          {
+            "name": "p2p",
+            "protocol": "TCP",
+            "port": 10002,
+            "targetPort": 10002
+          },
+          {
+            "name": "admin",
+            "protocol": "TCP",
+            "port": 10043,
+            "targetPort": 10043
+          }
+        ],
+        "selector": {
+          "name": "${CORDA_NODE_NAME}"
+        }
+      }
+    }
+  ]
+}

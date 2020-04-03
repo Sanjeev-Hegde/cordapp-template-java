@@ -10,6 +10,8 @@ tags
 
 .gradle
 
+**/bin/*
+
 # General build files
 **/build/*
 !docs/build/*
