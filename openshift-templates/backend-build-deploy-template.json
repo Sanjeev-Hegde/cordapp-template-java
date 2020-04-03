@@ -9,7 +9,7 @@
     }
   },
   "labels": {
-    "application": "clipeum",
+    "application": "corda-backend",
     "createdBy": "Sanjeev-Hegde"
   },
   "parameters": [
@@ -26,7 +26,7 @@
     {
       "description": "Backend Git branch to fetch",
       "name": "SOURCE_REPOSITORY_CONTEXT_BACKEND",
-      "value": "deployment"
+      "value": "development"
     },
     {
       "description": "Number of replicas to run",
@@ -93,14 +93,14 @@
       "displayName": "Node 1 Hostname",
       "name": "NODE2_HOSTNAME",
       "required": true,
-      "value": "corda-node-1.msme-dlt.svc"
+      "value": "corda-node-1.corda-whiteapp.svc"
     },
     {
       "description": "Corda Service Host Name",
       "displayName": "Node 2 Hostname",
       "name": "NODE2_HOSTNAME",
       "required": true,
-      "value": "corda-node-2.msme-dlt.svc"
+      "value": "corda-node-2.corda-whiteapp.svc"
     },
     {
       "description": "Spring Profile to load",
@@ -173,13 +173,13 @@
             "ref": "${SOURCE_REPOSITORY_CONTEXT_BACKEND}"
           },
           "sourceSecret": {
-            "name": "msmepull"
+            "name": "secret-pull"
           }
         },
         "strategy": {
           "type": "Docker",
           "dockerStrategy": {
-            "dockerfilePath": "clients/Dockerfile"
+            "dockerfilePath": "docker/springboot.Dockerfile"
           }
         },
         "output": {

@@ -22,7 +22,7 @@
     {
       "description": "Git branch to fetch",
       "name": "SOURCE_REPOSITORY_CONTEXT",
-      "value": "deployment"
+      "value": "development"
     }
   ],
   "objects": [
@@ -49,6 +49,7 @@
         "strategy": {
           "type": "Docker",
           "dockerStrategy": {
+            "dockerfilePath": "docker/corda.Dockerfile"
           }
         },
         "output": {
